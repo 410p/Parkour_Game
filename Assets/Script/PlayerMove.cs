@@ -46,13 +46,13 @@ public class PlayerMove : MonoBehaviour
     private float climbingSpeed; //벽타기 속도
 
     [SerializeField]
-    private float climbingJumpSpeed; //벽타기 취소 시 점프 속도
+    private float climbingJumpSpeed; //벽타기 취소 시 점프 속도\
 
 
     // Start is called before the first frame update
     void Start()
     {
-        //animator = GetComponent<Animator>(); 
+        animator = GetComponent<Animator>(); 
 
         stamina = 100;
         extraSpeed = 0;
@@ -61,8 +61,23 @@ public class PlayerMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 MoveDirection = transform.right * Input.GetAxis("Horizontal") + transform.forward * Input.GetAxis("Vertical");
+        float speedX = Input.GetAxis("Vertical");
+        float speedZ = Input.GetAxis("Horizontal");
 
+        Vector3 MoveDirection = transform.right * speedZ + transform.forward * speedX;
+
+        //rb.velocity = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) * speed + new Vector3(0, rb.velocity, 0);
+
+        Debug.Log(speed);
+
+        if (Input.GetKey(KeyCode.W))
+        {
+            animator.SetBool("IsRunning", true);
+        }
+        else
+        {
+            animator.SetBool("IsRunning", false);
+        }
 
         #region 점프
         if (Input.GetKeyDown(KeyCode.Space) && isGround)
@@ -70,6 +85,7 @@ public class PlayerMove : MonoBehaviour
             Debug.Log("j");
             rb.AddForce(Vector3.up * jump, ForceMode.Impulse);
             isJump = true;
+            animator.SetTrigger("Jump");
             if (isPossibleToClimbing)
             {
                 rb.AddForce(transform.forward * -1 * climbingJumpSpeed);
@@ -137,6 +153,7 @@ public class PlayerMove : MonoBehaviour
         if (collision.gameObject.CompareTag("Platform"))
         {
             isGround = true;
+            animator.SetBool("OnGround", true);
 
             if (isPossibleToFall)
             {
@@ -156,6 +173,7 @@ public class PlayerMove : MonoBehaviour
         if (collision.gameObject.CompareTag("Platform"))
         {
             isGround = false;
+            animator.SetBool("OnGround", false);
         }
         if (collision.gameObject.CompareTag("Wall"))
         {
